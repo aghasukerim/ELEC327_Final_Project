@@ -25,5 +25,5 @@ Robot car is made of a 3-wheel base (2 motors and 1 free-pivot) and a 3-sensor a
 
 ## Authors
 Agha Sukerim (ads13)
-Ben Wilson
-Ithzel Tuscano
+Ben Wilson (bjw8)
+Ithzel Toscano (ijt2)
