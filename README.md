@@ -1,4 +1,4 @@
-# Project Title
+# ELEC 327 Final Project
 
 Simple overview of use/purpose.
 
