@@ -1,4 +1,4 @@
-//infrared sensors for line following robot, disconnect the UART jumpers if you're using P1.1. and P1.2
+//infrared sensors for obstacle following robot, disconnect the UART jumpers if you're using P1.1. and P1.2
 //observe the port registers P1DIR and P1IN
 
 #include <msp430.h> 
@@ -7,53 +7,51 @@
 #include <string.h>
 #include <math.h>
 
-volatile int sensorout;
+// volatile int sensorout; // no longer used
 
-
-void straight (void);
-void turnright (void);
-void turnleft (void);
-void stop (void);
-void set_direction (float left, float right);
+void straight (void);                            // function to move straight
+void turnright (void);                           // function to turn right
+void turnleft (void);                            // function to turn left
+void stop (void);                                // function to stop moving
+void set_direction (float left, float right);    // function to set direction
 
 // Forward sensor pins
 #define TRIG_PIN1 BIT2    // P1.2
 #define ECHO_PIN1 BIT3    // P1.3
-#define LED_PIN1 BIT0     //P2.0
+#define LED_PIN1 BIT0     // P2.0
 
 // Right sensor pins
 #define TRIG_PIN_R BIT4   // P1.4
 #define ECHO_PIN_R BIT5   // P1.5
-#define LED_PIN_R BIT1    //P2.1
+#define LED_PIN_R BIT1    // P2.1
 
 // Left sensor pins
 #define TRIG_PIN_L BIT0   // P1.0
 #define ECHO_PIN_L BIT1   // P1.1
-#define LED_PIN_L BIT2    //P2.2
+#define LED_PIN_L BIT2    // P2.2
 
-//Car Control Pins
-#define ENABLE_L BIT4 //2.4
-#define ENABLE_R BIT6 //1.6
-#define DRIVE_L BIT3 //2.3
-#define DRIVE_R BIT5 //2.5
+//Car Motor Control Pins
+#define ENABLE_L BIT4     // P2.4
+#define ENABLE_R BIT6     // P1.6
+#define DRIVE_L BIT3     // P2.3
+#define DRIVE_R BIT5     // P2.5
 
-volatile unsigned long start_time1 = 0;
-volatile unsigned long end_time1 = 0;
-volatile unsigned long start_time_R = 0;
-volatile unsigned long end_time_R = 0;
-volatile unsigned long start_time_L = 0;
-volatile unsigned long end_time_L = 0;
+volatile unsigned long start_time1 = 0;    // record start time of front sensor
+volatile unsigned long end_time1 = 0;      // record end time of front sensor
+volatile unsigned long start_time_R = 0;   // record start time of right sensor
+volatile unsigned long end_time_R = 0;     // record end time of right sensor
+volatile unsigned long start_time_L = 0;   // record start time of left sensor
+volatile unsigned long end_time_L = 0;     // record end time of left sensor
 
-// FLAGS TO SEND TO DRIVE MOTORS
+// Flags to send to wheel motors
 extern volatile int forward = 0;        // Flag to move forward
 extern volatile int forward_f = 0;      // Flag to move forward at increased speed
 extern volatile int right = 0;          // Flag to turn right
 extern volatile int left = 0;           // Flag to turn left
-extern volatile int brake_lights = 0;   // Flag to engage brake lights (Red LED array)
-                                        // brake_lights flag assumes code controlling them are somewhere else; otherwise, set LED pins similarly to the LED_PINs here
+extern volatile int brake_lights = 0;   // Flag to stop and engage brake lights
 
-float D1; //duty cycle right wheel
-float D2; //duty cycle left wheel
+float D1; //duty cycle for right wheel
+float D2; //duty cycle for left wheel
 
 int period = 8000; //0x0FFF;  //PWM period
 
@@ -66,37 +64,37 @@ void setup() {
     DCOCTL = CALDCO_1MHZ;
 
 
-    P1DIR |= TRIG_PIN1 + TRIG_PIN_R + TRIG_PIN_L + ENABLE_R;
-    P1DIR &= ~(ECHO_PIN1 + ECHO_PIN_R + ECHO_PIN_L);
-    P1OUT &= ~(TRIG_PIN1 + TRIG_PIN_R + TRIG_PIN_L);
-    P1SEL |= ENABLE_R;
+    P1DIR |= TRIG_PIN1 + TRIG_PIN_R + TRIG_PIN_L + ENABLE_R;  // Set trigger and motor enable pins as output
+    P1DIR &= ~(ECHO_PIN1 + ECHO_PIN_R + ECHO_PIN_L);          // Clear echo pins as input
+    P1OUT &= ~(TRIG_PIN1 + TRIG_PIN_R + TRIG_PIN_L);          // Initialize trigger pins to low
+    P1SEL |= ENABLE_R;                                        // Select function for right enable pin
 
-    P2DIR |= LED_PIN1 + LED_PIN_R + LED_PIN_L + ENABLE_L + DRIVE_L + DRIVE_R;             // Set LED pin as output
-    P2OUT &= ~(LED_PIN1 + LED_PIN_R + LED_PIN_L);            // Set LED pin low
-    P2SEL |= ENABLE_L;
+    P2DIR |= LED_PIN1 + LED_PIN_R + LED_PIN_L + ENABLE_L + DRIVE_L + DRIVE_R;  // Set LED pins, motor enable, motor driver pins as output
+    P2OUT &= ~(LED_PIN1 + LED_PIN_R + LED_PIN_L);                              // Initialize LED pins as low
+    P2SEL |= ENABLE_L;                                                         // Select function for left enable pin
 
     TACTL = TASSEL_2 + MC_2;      // SMCLK, continuous mode
 }
 
 void triggerSensor_R() {            // Trigger signal for the right sensor
-    P1OUT |= TRIG_PIN_R;
+    P1OUT |= TRIG_PIN_R;            // Send out trigger to sensor
     __delay_cycles(10);             // 10us delay
-    P1OUT &= ~TRIG_PIN_R;
+    P1OUT &= ~TRIG_PIN_R;           // Stop trigger to sensor
 }
 
 void triggerSensor1() {             // Trigger signal for the front sensor
     P1OUT |= TRIG_PIN1;
-    __delay_cycles(10);          // 10us delay
+    __delay_cycles(10);             // 10us delay
     P1OUT &= ~TRIG_PIN1;
 }
 
 void triggerSensor_L() {            // Trigger signal for the left sensor
     P1OUT |= TRIG_PIN_L;
-    __delay_cycles(10);          // 10us delay
+    __delay_cycles(10);             // 10us delay
     P1OUT &= ~TRIG_PIN_L;
 }
 
-unsigned int measureDistance1() {   // Measure distance of front sensor
+unsigned int measureDistance1() {   // Function to measure distance of front sensor
     //unsigned long pulseWidth;
 
     while (!(P1IN & ECHO_PIN1));                        // While echo is NOT high
@@ -133,9 +131,9 @@ unsigned int measureDistance_L() { // similar but for left sensor
     return duration_L / 58;
 }
 
-void drive_car(){
+void drive_car(){                    // Function to move car
 
-    if (forward){
+    if (forward){                    // IF forward flag is set
         set_direction(0.9, 0.9);
     } else if (forward_f){
         set_direction(0.99, 0.99);
@@ -249,10 +247,11 @@ int main(void) {
 }
 
 
-void set_direction(float left, float right){
-    D1 = right;
-    D2 = left;
+void set_direction(float left, float right){ // Function to control speed and direction of 2 DC motors using PWM
+    D1 = right;    // duty cycle for right motor
+    D2 = left;     // duty cycle for left motor
 
+  
     TACCR0 = period-1;  //PWM period
     TACCR1 = period*D2;
 
