@@ -1,7 +1,7 @@
 # Group 16's ELEC 327 Final Project: FrenBot
-Software to run Frenbot, a hand-following robot.  
+Software to run Frenbot, a hand-following robot. A link to our pitch video can be found here: https://rice.app.box.com/file/1514839645453.
 
-### Description
+## Description
 Frenbot is made of a 3-wheel base (2 motors and 1 free-pivot) and a 3-sensor array of ultrasonic HC-SR04 sensors. Sensors detect obstacles (e.g. hand) at a preset distance and move according to which sensor detects an obstacle. The front sensor triggers forward movement, and the right and left trigger robot turning. If the sensors detect that an object is too close to Frenbot, it will stop. 
 
 ### Software Architecture
@@ -17,7 +17,6 @@ The system works in a fast loop of measuring distance from the 3 sensors. After 
 * 3 HC-SR04 ultrasonic sensors
 * LED pins
 * Wires
-
 
 ## Authors
 * Agha Sukerim (ads13)
