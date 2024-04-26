@@ -10,6 +10,8 @@ The system works in a fast loop of measuring distance from the 3 sensors. After 
 ### Hardware Architecture
 3 ultrasonic sensors are placed in a curved array at the front of the motored wheelbase. All input/output pins of the sensors and 2 DC motors are connected to a single launchpad. Additionally, LED pins following the setting/clearing of flags serve as visual indicators.
 
+![wiring block diagram](wiring.png)
+
 ### Materials
 * 1 MSP430G2553 LaunchPad
 * 2 DC motors with H-bridge
