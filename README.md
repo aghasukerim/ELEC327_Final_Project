@@ -1,4 +1,4 @@
-# ELEC 327 Final Project - FrenBot
+# Group 16's ELEC 327 Final Project: FrenBot
 Software to run Frenbot, a hand-following robot.  
 
 ## Description
