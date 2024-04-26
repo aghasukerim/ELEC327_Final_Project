@@ -1,4 +1,4 @@
-# ELEC 327 Final Project
+# ELEC 327 Final Project - FrenBot
 Software to run a hand-following robot (i.e. Frenbot).  
 *Only consider main.c*
 ## Description
