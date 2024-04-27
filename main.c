@@ -134,29 +134,29 @@ unsigned int measureDistance_L() { // similar but for left sensor
 void drive_car(){                    // Function to move car
 
     if (forward){                    // IF forward flag is set
-        set_direction(0.9, 0.9);
-    } else if (forward_f){
-        set_direction(0.99, 0.99);
-    } else if (right) {
-       set_direction(0.56, 0.99);
+        set_direction(0.9, 0.9);     // Set duty cycles to control Frenbot speed
+    } else if (forward_f){           // IF forward_f flag is set
+        set_direction(0.99, 0.99);   // Same as forward but higher duty cycle (i.e. faster)
+    } else if (right) {              // If turn flag is set
+       set_direction(0.56, 0.99);    // Set different duty cycles to induce turning
     } else if (left) {
         set_direction(0.99, 0.56);
-    } else if (brake_lights) {
-        set_direction(0.01, 0.01);
+    } else if (brake_lights) {       // IF brake flag is set
+        set_direction(0.01, 0.01);   // Set duty cycles to stop
     } else {
         set_direction(0.01, 0.01);
     }
 
-    straight();
+    straight();        // Set motor drive pins
 }
 
 unsigned int distance_R = 20;
 unsigned int distance_L = 20;
 
 int main(void) {
-    setup();
+    setup(); // pin initializations
 
-    while(1) {
+    while(1) { // indefinite loop
 
 
         triggerSensor_R();                              // trigger the sensor
@@ -176,8 +176,8 @@ int main(void) {
         if ((distance_R <= 5)||(distance_L <= 5)) {     // IF either right or left sensor detected (i.e. car wants to turn)
             P2OUT &= ~LED_PIN1;                         // forward flag is cleared
             forward = 0;
-            if ((distance_R <= 5)&&(distance_L <= 5)) {
-                P2OUT &= ~LED_PIN_L;
+            if ((distance_R <= 5)&&(distance_L <= 5)) { // IF both right/left sensors detect something
+                P2OUT &= ~LED_PIN_L;                    // no turning is initiated
                 P2OUT &= ~LED_PIN_R;
                 left = 0;
                 right = 0;
@@ -229,7 +229,7 @@ int main(void) {
 
         }
         else {  // Idle state
-            P2OUT &= ~LED_PIN1;                         // clear all flags
+            P2OUT &= ~LED_PIN1;                         // clear all flags and LEDs
             P2OUT &= ~LED_PIN_R;
             P2OUT &= ~LED_PIN_L;
             forward = 0;
@@ -253,7 +253,7 @@ void set_direction(float left, float right){ // Function to control speed and di
 
   
     TACCR0 = period-1;  //PWM period
-    TACCR1 = period*D2;
+    TACCR1 = period*D2; // Set duty cycle
 
     TACCTL1 = OUTMOD_7;  //CCR1 selection reset-set
     TACTL = TASSEL_2|MC_1;   //SMCLK submain clock,upmode
@@ -267,7 +267,7 @@ void set_direction(float left, float right){ // Function to control speed and di
 
 }
 
-
+// Below are functions to set output pins for motor drive pins and associated indicator LEDs
 void straight(void){
     //P2OUT = 0x00;
     P2OUT |= BIT3 + BIT5; //0x24;
