@@ -22,6 +22,7 @@ The system works in a fast loop of measuring distance from the 3 sensors. After 
 * 3 HC-SR04 ultrasonic sensors
 * LED pins
 * Wires
+* 9V Battery
 
 ## Authors
 * Agha Sukerim (ads13)
