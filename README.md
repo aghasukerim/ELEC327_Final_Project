@@ -8,7 +8,7 @@ Frenbot is made of a 3-wheel base (2 motors and 1 free-pivot) and a 3-sensor arr
 The system works in a fast loop of measuring distance from the 3 sensors. After measurement, an if-else block sets and clears flags according to the distance of a sensor to an obstacle (e.g. if front sensor is <20cm from an obstacle, it moves forward). Turning takes priority over moving forward. Frenbot does not move if both turning sensors is sensing a close obstacle. A function after the if-else block sets the speed of the motors using Pulse-Width Modulation based on the flags set/cleared prior.
 
 ### Hardware Architecture
-3 ultrasonic sensors are placed in a curved array at the front of the motored wheelbase. All input/output pins of the sensors and 2 DC motors are connected to a single launchpad. Additionally, LED pins following the setting/clearing of flags serve as visual indicators.
+3 ultrasonic sensors are placed in a curved array at the front of the motored wheelbase and are connected to the appropriate VCC and GND sources as well as the appropriate GPIO pins on the MSP430. All input/output pins of the sensors and 2 DC motors are connected to a single MSP430, as the motors are connected through an H-bridge. Additionally, 1 LED for each sensor, following the setting/clearing of flags to serve as visual indicators, is connected to the remaning GPIO pins as well as resistors.
 
 ![wiring block diagram](Wiring.png)
 
